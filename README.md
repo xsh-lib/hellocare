@@ -57,6 +57,39 @@ sit well inside the physical stops, so commanding an edge parks the servo there
 cleanly (no stop contact, no grind), and within the window positioning is **exact
 and clean** (round-trips return to the same value, no backlash).
 
+### Optical characterization (measured)
+
+Measured 2026-09-06 by driving zoom to known VISCA stops over serial while
+capturing the video in OBS, using a 300 mm ceiling-tile grid and a cm ruler as
+the scale, at a 1300 mm subject distance. (Headless frame-grab isn't possible —
+a shell-spawned `ffmpeg`/AVFoundation has no Camera permission and hangs
+silently; only an app granted camera access, e.g. OBS, sees the feed.)
+
+| Zoom | raw | HFOV | focal (35 mm-eq) | focal (actual)¹ |
+|---|---|---|---|---|
+| wide | `0x0118` | 60° | 31 mm | 4.6 mm |
+| 25% | `0x10C8` | 38° | 52 mm | 7.8 mm |
+| 40% | `0x1A2E` | 27° | 74 mm | 11 mm |
+| tele | `0x3FDA` | 4.2° | 487 mm | 73 mm |
+
+- **Optical zoom ≈ 15.7×**, measured (wide ÷ tele field, assumption-free) — i.e.
+  the "20X" in the model name is **overstated**; the true optical range is ~16×.
+- **35 mm-equivalent focal ≈ 31–487 mm** — derived from field-of-view alone, so
+  independent of any sensor assumption.
+- ¹ **actual focal ≈ 4.6–73 mm** *assuming a 1/2.8″ (5.37 mm-wide) sensor* — the
+  equivalent-vs-actual figures only reconcile at ~1/2.8″, which is the basis for
+  that sensor inference.
+- The zoom curve is **tele-heavy**: focal barely changes through the first ~40 %
+  of the raw range, then climbs steeply toward tele.
+
+**Aperture is fixed — there is no adjustable iris.** The VISCA iris command
+(`81 01 04 4B …`) is accepted (ACK) but drives nothing: commanding the iris fully
+closed then open, at both wide and tele, produces **no brightness change**
+(a real iris closing to zero would black the frame regardless of gain). AE mode
+reports `0x00` (Full-Auto); exposure is purely electronic (auto shutter + gain).
+There is no depth-of-field control. Estimated ~F1.8–2 at wide, dimming toward
+~F3–3.5 at tele (behavior confirmed; exact f-number not measurable over serial).
+
 ### Active position-hold & fail-safes
 
 The gimbal holds its commanded position under motor torque, so a position inquiry
