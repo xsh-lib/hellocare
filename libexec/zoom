@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""zoom — optical-zoom control for the HelloCore PTZ20X2.
+usage: zoom [0-100 | 0xNNNN | wide | tele]   (no arg = read current)"""
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+import _ptzlib as v
+
+def parse(argv):
+    """Return ('report'|'help'|target_units, err_or_None). No hardware access."""
+    if not argv: return ("report", None)
+    a = argv[0]
+    if a in ("-h", "--help"): return ("help", None)
+    if len(argv) > 1: return (None, "too many arguments")
+    if a == "wide": return (v.WIDE, None)
+    if a == "tele": return (v.TELE, None)
+    if a.lower().startswith("0x"):
+        try: return (int(a, 16), None)
+        except ValueError: return (None, "bad hex %r" % a)
+    try: pct = int(a)
+    except ValueError: return (None, "bad level %r (want 0-100, 0xNNNN, wide, tele)" % a)
+    return (v.zoom_u(max(0, min(100, pct))), None)
+
+def main(argv):
+    action, err = parse(argv)
+    if err: sys.stderr.write("zoom: %s\n" % err); return 2
+    if action == "help": print(__doc__); return 0
+    try: fd = v.sopen()
+    except OSError as e: sys.stderr.write("zoom: cannot open %s: %s\n" % (v.DEV, e)); return 1
+    try:
+        if action != "report": v.set_zoom(fd, action)
+        z = v.get_zoom(fd)
+        print("zoom: %d%%  (raw %#06x)" % (v.zoom_pct(z), z) if z is not None else "zoom: (no read)")
+        return 0
+    finally:
+        os.close(fd)
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
