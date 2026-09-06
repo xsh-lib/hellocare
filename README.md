@@ -1,6 +1,6 @@
-# xsh-lib/hellocore
+# xsh-lib/hellocare
 
-xsh utilities for the **HelloCore PTZ20X2** USB camera — an EOL AI-tracking
+xsh utilities for the **Hellocare PTZ20X2** USB camera — an EOL AI-tracking
 healthcare PTZ (20x optical zoom, ~360°/180° gimbal, single USB-C, no
 buttons/remote and no vendor software available). Fully host-controllable over
 its VISCA serial channel once you know which command families it implements.
@@ -80,8 +80,8 @@ Function-type utils (sourced, so they work via `xsh <lib>/<util>` without needin
 (no pyserial / no venv), shared by the utils and by the bare PATH commands.
 
 ```
-xsh hellocore/ptz/zoom [0-100 | 0xNNNN | wide | tele]
-xsh hellocore/ptz/move [P [T [Z]]] | [pan P] [tilt T] [zoom Z] | center | reset
+xsh hellocare/ptz/zoom [0-100 | 0xNNNN | wide | tele]
+xsh hellocare/ptz/move [P [T [Z]]] | [pan P] [tilt T] [zoom Z] | center | reset
 ```
 
 `reset` runs the camera's own calibration (VISCA `06 05`) back to (0,0) without
@@ -90,7 +90,7 @@ grinding — the right recovery after the gimbal has been hand-moved or confused
 
 Pan/tilt are signed **percent of range** (−100…100), zoom is 0…100 (or
 `wide`/`tele`). Positional `move P T Z` and keyword forms both work. Prefix a
-value with `=` for a raw VISCA unit. Port override: `$XSH_HELLOCORE_PORT`
+value with `=` for a raw VISCA unit. Port override: `$XSH_HELLOCARE_PORT`
 (default `/dev/cu.usbserial-1110`).
 
 ### Bare `zoom` / `ptz` on PATH
@@ -101,8 +101,8 @@ core scripts are symlinked into `~/.local/bin` (already on PATH), so `zoom` and
 `ptz` work from any shell, OBS, or cron:
 
 ```sh
-ln -sfn ~/.xsh/lib/hellocore/libexec/zoom ~/.local/bin/zoom
-ln -sfn ~/.xsh/lib/hellocore/libexec/ptz  ~/.local/bin/ptz
+ln -sfn ~/.xsh/lib/hellocare/libexec/zoom ~/.local/bin/zoom
+ln -sfn ~/.xsh/lib/hellocare/libexec/ptz  ~/.local/bin/ptz
 ```
 
 ```

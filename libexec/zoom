@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""zoom — optical-zoom control for the HelloCore PTZ20X2.
+"""zoom — optical-zoom control for the Hellocare PTZ20X2.
 usage: zoom [0-100 | 0xNNNN | wide | tele]   (no arg = read current)"""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))

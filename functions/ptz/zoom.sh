@@ -1,5 +1,5 @@
 #? Description:
-#?   Control the optical zoom of the HelloCore PTZ20X2 over its USB VISCA
+#?   Control the optical zoom of the Hellocare PTZ20X2 over its USB VISCA
 #?   serial channel (9600 8N1) using VISCA "Zoom Direct". Thin wrapper around
 #?   the lib's stdlib-python core (no pyserial); the same core backs the bare
 #?   `zoom` command on PATH (~/.local/bin/zoom).
@@ -7,7 +7,7 @@
 #? Dependency:
 #?   1. python3 (stdlib only)
 #?   2. Camera USB-serial port. Default /dev/cu.usbserial-1110;
-#?      override with $XSH_HELLOCORE_PORT.
+#?      override with $XSH_HELLOCARE_PORT.
 #?
 #? Usage:
 #?   @zoom [LEVEL]
@@ -27,5 +27,5 @@
 #?   @zoom tele       # 20x
 #?
 function zoom () {
-    "${XSH_HOME:-$HOME/.xsh}/lib/hellocore/libexec/zoom" "$@"
+    "${XSH_HOME:-$HOME/.xsh}/lib/hellocare/libexec/zoom" "$@"
 }

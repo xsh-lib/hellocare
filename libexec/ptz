@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ptz — pan/tilt/zoom control for the HelloCore PTZ20X2 (VISCA absolute).
+"""ptz — pan/tilt/zoom control for the Hellocare PTZ20X2 (VISCA absolute).
 
 usage:
   ptz                                   read current pan/tilt/zoom

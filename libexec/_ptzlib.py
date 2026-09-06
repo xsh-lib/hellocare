@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared VISCA control core for the HelloCore PTZ20X2 (9600 8N1, camera addr 1).
+"""Shared VISCA control core for the Hellocare PTZ20X2 (9600 8N1, camera addr 1).
 Pure stdlib (termios) — no pyserial. Imported by the `zoom` and `ptz` CLIs.
 
 Fail-safes for this unit's active position-hold (the motor keeps torque on the
@@ -12,7 +12,7 @@ grind and blocks the control MCU from answering inquiries):
 """
 import os, termios, time
 
-DEV = os.environ.get("XSH_HELLOCORE_PORT", "/dev/cu.usbserial-1110")
+DEV = os.environ.get("XSH_HELLOCARE_PORT", "/dev/cu.usbserial-1110")
 
 # --- command envelope of this unit (VISCA units) -------------------------
 # The firmware clamps BOTH absolute (06 02) AND relative (06 03) targets to one

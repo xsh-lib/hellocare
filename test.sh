@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Tests for xsh-lib/hellocore. Plain assertions, no external framework (mirrors
+# Tests for xsh-lib/hellocare. Plain assertions, no external framework (mirrors
 # xsh-lib/rigol/test.sh). Runs under bash and zsh.
 #
 # Static checks only — they do NOT touch a real camera (CI has none). The CLIs
@@ -10,7 +10,7 @@
 # bad input.
 #
 # Usage:
-#   xsh load xsh-lib/core <user>/hellocore   # one-time
+#   xsh load xsh-lib/core <user>/hellocare   # one-time
 #   bash test.sh                             # or: zsh test.sh
 #
 
@@ -56,4 +56,4 @@ if xsh "${__lib}/ptz/move" 1 2 3 4 >/dev/null 2>&1; then
     echo "test.sh: ptz/move accepted too many positional values" >&2; exit 1
 fi
 
-xsh log info "all hellocore tests passed"
+xsh log info "all hellocare tests passed"

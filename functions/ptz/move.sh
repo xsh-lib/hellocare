@@ -1,5 +1,5 @@
 #? Description:
-#?   Full pan/tilt/zoom control for the HelloCore PTZ20X2 over its USB VISCA
+#?   Full pan/tilt/zoom control for the Hellocare PTZ20X2 over its USB VISCA
 #?   serial channel (9600 8N1), using VISCA absolute positioning (pan/tilt
 #?   06 02, zoom 04 47). Thin wrapper around the lib's stdlib-python core; the
 #?   same core backs the bare `ptz` command on PATH (~/.local/bin/ptz).
@@ -11,7 +11,7 @@
 #? Dependency:
 #?   1. python3 (stdlib only)
 #?   2. Camera USB-serial port. Default /dev/cu.usbserial-1110;
-#?      override with $XSH_HELLOCORE_PORT.
+#?      override with $XSH_HELLOCARE_PORT.
 #?
 #? Usage:
 #?   @move [P [T [Z]]]                     positional: pan tilt zoom
@@ -31,5 +31,5 @@
 #?   @move center
 #?
 function move () {
-    "${XSH_HOME:-$HOME/.xsh}/lib/hellocore/libexec/ptz" "$@"
+    "${XSH_HOME:-$HOME/.xsh}/lib/hellocare/libexec/ptz" "$@"
 }
