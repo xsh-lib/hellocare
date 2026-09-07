@@ -74,6 +74,10 @@ silently; only an app granted camera access, e.g. OBS, sees the feed.)
 
 - **Optical zoom ≈ 15.7×**, measured (wide ÷ tele field, assumption-free) — i.e.
   the "20X" in the model name is **overstated**; the true optical range is ~16×.
+  **No digital zoom makes up the difference:** enabling VISCA D-Zoom
+  (`81 01 04 06 02`) and commanding past the optical cap (raw 0x7AC0) produced
+  **zero** magnification change — the zoom register hard-caps at 0x3FE6 and D-Zoom
+  defaults OFF. The 20× is padding, not an optical+digital combined figure.
 - **35 mm-equivalent focal ≈ 31–487 mm** — derived from field-of-view alone, so
   independent of any sensor assumption.
 - ¹ **actual focal ≈ 4.6–73 mm** *assuming a 1/2.8″ (5.37 mm-wide) sensor* — the
