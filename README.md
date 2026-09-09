@@ -127,8 +127,13 @@ grinding — the right recovery after the gimbal has been hand-moved or confused
 
 Pan/tilt are signed **percent of range** (−100…100), zoom is 0…100 (or
 `wide`/`tele`). Positional `move P T Z` and keyword forms both work. Prefix a
-value with `=` for a raw VISCA unit. Port override: `$XSH_HELLOCARE_PORT`
-(default `/dev/cu.usbserial-1110`).
+value with `=` for a raw VISCA unit.
+
+**Port:** auto-detected — the CH340 bridge enumerates as
+`/dev/cu.usbserial-<port-location>`, and macOS changes that suffix whenever the
+cable moves to a different USB port, so the lib globs for it instead of
+hard-coding. Set `$XSH_HELLOCARE_PORT` to force a specific device (e.g. if more
+than one USB-serial adapter is attached).
 
 ### Bare `zoom` / `ptz` on PATH
 

@@ -10,9 +10,25 @@ grind and blocks the control MCU from answering inquiries):
     reached position so the motor stops driving into the stop,
   * retry inquiries so a momentarily-busy MCU doesn't read as "no data".
 """
-import os, termios, time
+import os, termios, time, glob
 
-DEV = os.environ.get("XSH_HELLOCARE_PORT", "/dev/cu.usbserial-1110")
+def _autodev():
+    # 1) explicit override always wins
+    p = os.environ.get("XSH_HELLOCARE_PORT")
+    if p:
+        return p
+    # 2) auto-detect the CH340 USB-serial bridge. macOS names it
+    #    /dev/cu.usbserial-<port-location>, so the suffix changes whenever the
+    #    cable moves to a different USB port -- glob instead of hard-coding.
+    #    (older CH340 kexts expose /dev/cu.wchusbserial* instead.)
+    for pat in ("/dev/cu.usbserial-*", "/dev/cu.wchusbserial*", "/dev/cu.usbserial*"):
+        cands = sorted(glob.glob(pat))
+        if cands:
+            return cands[0]
+    # 3) last-resort default (keeps a clear error message if nothing is plugged)
+    return "/dev/cu.usbserial-1110"
+
+DEV = _autodev()
 
 # --- command envelope of this unit (VISCA units) -------------------------
 # The firmware clamps BOTH absolute (06 02) AND relative (06 03) targets to one
