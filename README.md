@@ -119,7 +119,7 @@ Function-type utils (sourced, so they work via `xsh <lib>/<util>` without needin
 ```
 xsh hellocare/ptz/zoom  [0-100 | 0xNNNN | wide | tele]
 xsh hellocare/ptz/focus [0-100 | 0xNNNN | auto]
-xsh hellocare/ptz/move  [P [T [Z]]] | [pan P] [tilt T] [zoom Z] | center | reset
+xsh hellocare/ptz/move  [P [T [Z]]] | [pan P] [tilt T] [zoom Z] [focus F] | focus F|auto | center | reset
 ```
 
 `focus` locks a **manual** focus position (VISCA Focus Manual + Focus Direct,

@@ -4,7 +4,8 @@
 usage:
   ptz                                   read current pan/tilt/zoom
   ptz P [T [Z]]                         positional: pan, tilt, zoom
-  ptz pan P [tilt T] [zoom Z]           keyword form (any subset; held axes stay)
+  ptz pan P [tilt T] [zoom Z] [focus F] keyword form (any subset; held axes stay)
+  ptz focus F | ptz focus auto          manual focus (F) or autofocus; moves nothing else
   ptz center                            quick move: pan+tilt to 0 (keeps zoom)
   ptz reset                             run the camera's own calibration -> (0,0),
                                         grind-free (~20s); use to recover a
@@ -13,7 +14,8 @@ usage:
 
   P, T : -100..100 (percent; -=left/down, +=right/up, 0=center)
   Z    : 0..100 (0=wide/1x, 100=tele/20x) | wide | tele
-  prefix a value with '=' for a raw VISCA unit, e.g. ptz pan =0x0300
+  F    : 0..100 (manual focus percent) | =raw (0x0000..0x16B4) | auto
+  prefix a value with '=' for a raw VISCA unit, e.g. ptz pan =0x0300 / focus =0x0e50
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
@@ -38,18 +40,22 @@ def parse(argv):
         if len(argv) > 1: return None, "reset takes no arguments"
         return {"reset": True}, None
     out = {}
-    kw = {"pan", "tilt", "zoom"}
+    kw = {"pan", "tilt", "zoom", "focus"}
     if any(a.lower() in kw for a in argv):
         i = 0
         while i < len(argv):
             k = argv[i].lower()
             if k not in kw: return None, "unknown token %r" % argv[i]
             if i + 1 >= len(argv): return None, "%s needs a value" % k
-            val, raw, err = _val(argv[i+1], k == "zoom"); i += 2
+            tok = argv[i+1]; i += 2
+            if k == "focus" and tok.lower() == "auto":
+                out["focus"] = "auto"; continue
+            val, raw, err = _val(tok, k == "zoom")
             if err: return None, err
             if k == "zoom": out["zoom"] = val if raw else v.zoom_u(max(0, min(100, val)))
             elif k == "pan": out["pan"] = val if raw else v.pan_u(max(-100, min(100, val)))
-            else: out["tilt"] = val if raw else v.tilt_u(max(-100, min(100, val)))
+            elif k == "tilt": out["tilt"] = val if raw else v.tilt_u(max(-100, min(100, val)))
+            else: out["focus"] = val if raw else v.focus_u(max(0, min(100, val)))
         return out, None
     if argv[0] == "center":
         if len(argv) > 1: return None, "center takes no arguments"
@@ -66,10 +72,11 @@ def parse(argv):
     return out, None
 
 def report(fd):
-    pt = v.get_pt(fd); z = v.get_zoom(fd)
+    pt = v.get_pt(fd); z = v.get_zoom(fd); fc = v.get_focus(fd)  # all reads (no motion)
     if pt and z is not None:
-        print("pan %+d%%  tilt %+d%%  zoom %d%%   (raw pan=%d tilt=%d zoom=%#06x)"
-              % (v.pan_pct(pt[0]), v.tilt_pct(pt[1]), v.zoom_pct(z), pt[0], pt[1], z))
+        fs = ("focus=%#06x" % fc) if fc is not None else "focus=?"
+        print("pan %+d%%  tilt %+d%%  zoom %d%%  %s   (raw pan=%d tilt=%d zoom=%#06x)"
+              % (v.pan_pct(pt[0]), v.tilt_pct(pt[1]), v.zoom_pct(z), fs, pt[0], pt[1], z))
     else:
         print("ptz: (no read)")
 
@@ -85,7 +92,13 @@ def main(argv):
                 v.reset(fd)                     # camera's own calibration -> (0,0)
             else:
                 # pan/tilt/zoom move together; held axes (not given) stay put.
-                v.move(fd, pan=action.get("pan"), til=action.get("tilt"), zoom=action.get("zoom"))
+                # ONLY call move() if a P/T/Z axis was given, so a focus-only
+                # command never nudges pan/tilt/zoom.
+                if any(action.get(a) is not None for a in ("pan", "tilt", "zoom")):
+                    v.move(fd, pan=action.get("pan"), til=action.get("tilt"), zoom=action.get("zoom"))
+                f = action.get("focus")
+                if f == "auto": v.focus_auto(fd)
+                elif f is not None: v.set_focus(fd, f)
         report(fd); return 0
     finally:
         os.close(fd)

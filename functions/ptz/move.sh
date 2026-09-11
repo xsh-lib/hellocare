@@ -15,12 +15,14 @@
 #?
 #? Usage:
 #?   @move [P [T [Z]]]                     positional: pan tilt zoom
-#?   @move [pan P] [tilt T] [zoom Z]       keyword form (held axes stay)
+#?   @move [pan P] [tilt T] [zoom Z] [focus F]   keyword form (held axes stay)
+#?   @move focus F | @move focus auto      manual focus / autofocus (moves nothing else)
 #?   @move center                          pan+tilt to 0
 #?   @move                                 report current
 #?
 #?   P, T : -100..100 (percent; -=left/down, +=right/up, 0=center)
 #?   Z    : 0..100 | wide | tele ; prefix '=' for a raw VISCA unit
+#?   F    : 0..100 (manual focus %) | =raw (0x0000..0x16B4) | auto
 #?
 #? Return:
 #?   0 ok; 1 serial-port error; 2 bad argument.
