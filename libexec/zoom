@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """zoom — optical-zoom control for the Hellocare PTZ20X2.
-usage: zoom [0-100 | 0xNNNN | wide | tele]   (no arg = read current)"""
+usage: zoom [0-100 | 0xNNNN | wide | tele]   (no arg = read current)
+  percent accepts decimals (e.g. 55.3) for fine sub-1% control."""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 import _ptzlib as v
@@ -16,9 +17,9 @@ def parse(argv):
     if a.lower().startswith("0x"):
         try: return (int(a, 16), None)
         except ValueError: return (None, "bad hex %r" % a)
-    try: pct = int(a)
+    try: pct = float(a)
     except ValueError: return (None, "bad level %r (want 0-100, 0xNNNN, wide, tele)" % a)
-    return (v.zoom_u(max(0, min(100, pct))), None)
+    return (v.zoom_u(max(0.0, min(100.0, pct))), None)
 
 def main(argv):
     action, err = parse(argv)
@@ -29,7 +30,8 @@ def main(argv):
     try:
         if action != "report": v.set_zoom(fd, action)
         z = v.get_zoom(fd)
-        print("zoom: %d%%  (raw %#06x)" % (v.zoom_pct(z), z) if z is not None else "zoom: (no read)")
+        if z is None: print("zoom: (no read)")
+        else: print("zoom: %.1f%%  (raw %#06x)" % (100.0*(z-v.WIDE)/(v.TELE-v.WIDE), z))
         return 0
     finally:
         os.close(fd)

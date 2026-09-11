@@ -132,8 +132,10 @@ grinding — the right recovery after the gimbal has been hand-moved or confused
 (`center` is a quick absolute move to 0,0 for when it's already well-referenced).
 
 Pan/tilt are signed **percent of range** (−100…100), zoom is 0…100 (or
-`wide`/`tele`). Positional `move P T Z` and keyword forms both work. Prefix a
-value with `=` for a raw VISCA unit.
+`wide`/`tele`). **Percents accept decimals** (e.g. `zoom 55.3`) for fine sub-1%
+control — the zoom range is ~16 000 raw units, so 1 % ≈ 160 units. Positional
+`move P T Z` and keyword forms both work. Prefix a value with `=` for a raw VISCA
+unit.
 
 **Port:** auto-detected — the CH340 bridge enumerates as
 `/dev/cu.usbserial-<port-location>`, and macOS changes that suffix whenever the

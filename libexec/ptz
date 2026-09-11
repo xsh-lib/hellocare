@@ -27,7 +27,7 @@ def _val(tok, is_zoom):
         r = tok[1:]
         try: return (int(r, 16) if r.lower().startswith("0x") else int(r)), True, None
         except ValueError: return None, False, "bad raw value %r" % tok
-    try: return int(tok), False, None
+    try: return float(tok), False, None   # float percent -> fine sub-1% control
     except ValueError: return None, False, "bad value %r" % tok
 
 def parse(argv):

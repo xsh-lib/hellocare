@@ -42,7 +42,10 @@ PAN_MIN, PAN_MAX   = -2018, 2147         # firmware soft-limit window (measured)
 TILT_MIN, TILT_MAX = -576, 1200          # firmware soft-limit window (measured)
 # -------------------------------------------------------------------------
 PAN_SPD, TILT_SPD = 0x10, 0x10
-PT_SKIP_TOL, PT_REACH_TOL, ZOOM_TOL = 3, 6, 0x40  # skip-if-there / reached / zoom tol
+PT_SKIP_TOL, PT_REACH_TOL, ZOOM_TOL = 3, 6, 0x08  # skip-if-there / reached / zoom tol
+# ZOOM_TOL kept small (8 units ~0.05%) so fine float-percent steps aren't skipped
+# (zoom is a plain lens motor, not the position-hold servo, so re-commanding a
+#  near-identical zoom doesn't grind).
 STALL_POLLS = 3                          # no-progress polls before declaring a stall
 FOCUS_MIN, FOCUS_MAX = 0x0000, 0x16B4    # manual-focus travel (measured; higher clamps)
 # tilt/pan 1% = 12/21 units, so the skip tol must be small or small steps vanish.
