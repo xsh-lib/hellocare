@@ -30,13 +30,14 @@ xsh log info "xsh list ${__lib}/"
 xsh list "${__lib}/*" >/dev/null
 
 # Every utility must be listable and expose help metadata.
-for util in ptz/zoom ptz/move; do
+for util in ptz/zoom ptz/focus ptz/move; do
     xsh log info "help: ${__lib}/${util}"
     xsh help "${__lib}/${util}" >/dev/null
 done
 
 # --help must succeed (exit 0) and needs no camera.
 xsh "${__lib}/ptz/zoom" --help >/dev/null
+xsh "${__lib}/ptz/focus" --help >/dev/null
 xsh "${__lib}/ptz/move" --help >/dev/null
 
 # Argument validation: bad input must fail (non-zero), with no port access.
@@ -45,6 +46,12 @@ if xsh "${__lib}/ptz/zoom" not-a-level >/dev/null 2>&1; then
 fi
 if xsh "${__lib}/ptz/zoom" 10 20 >/dev/null 2>&1; then
     echo "test.sh: ptz/zoom accepted too many arguments" >&2; exit 1
+fi
+if xsh "${__lib}/ptz/focus" not-a-level >/dev/null 2>&1; then
+    echo "test.sh: ptz/focus accepted a bad level" >&2; exit 1
+fi
+if xsh "${__lib}/ptz/focus" 10 20 >/dev/null 2>&1; then
+    echo "test.sh: ptz/focus accepted too many arguments" >&2; exit 1
 fi
 if xsh "${__lib}/ptz/move" bogus-token >/dev/null 2>&1; then
     echo "test.sh: ptz/move accepted a bad positional value" >&2; exit 1

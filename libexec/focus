@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""focus — manual focus control for the Hellocare PTZ20X2.
+usage: focus [0-100 | 0xNNNN | auto]   (no arg = read current)
+  0-100   manual focus position, percent of travel (switches to Focus Manual).
+  0xNNNN  raw VISCA focus position (clamped 0x0000..0x16B4).
+  auto    restore autofocus.
+
+The autofocus hunts/drifts on this unit (worse with a close-up lens), so locking
+a manual focus position gives a stable focus point for a fixed working distance."""
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+import _ptzlib as v
+
+def parse(argv):
+    """Return ('report'|'help'|'auto'|target_units, err_or_None). No hardware access."""
+    if not argv: return ("report", None)
+    a = argv[0]
+    if a in ("-h", "--help"): return ("help", None)
+    if len(argv) > 1: return (None, "too many arguments")
+    if a == "auto": return ("auto", None)
+    if a.lower().startswith("0x"):
+        try: return (int(a, 16), None)
+        except ValueError: return (None, "bad hex %r" % a)
+    try: pct = int(a)
+    except ValueError: return (None, "bad level %r (want 0-100, 0xNNNN, auto)" % a)
+    return (v.focus_u(max(0, min(100, pct))), None)
+
+def main(argv):
+    action, err = parse(argv)
+    if err: sys.stderr.write("focus: %s\n" % err); return 2
+    if action == "help": print(__doc__); return 0
+    try: fd = v.sopen()
+    except OSError as e: sys.stderr.write("focus: cannot open %s: %s\n" % (v.DEV, e)); return 1
+    try:
+        if action == "auto":
+            v.focus_auto(fd); print("focus: auto"); return 0
+        if action != "report": v.set_focus(fd, action)
+        f = v.get_focus(fd)
+        print("focus: %d%%  (raw %#06x)" % (v.focus_pct(f), f) if f is not None else "focus: (no read)")
+        return 0
+    finally:
+        os.close(fd)
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

@@ -44,6 +44,7 @@ TILT_MIN, TILT_MAX = -576, 1200          # firmware soft-limit window (measured)
 PAN_SPD, TILT_SPD = 0x10, 0x10
 PT_SKIP_TOL, PT_REACH_TOL, ZOOM_TOL = 3, 6, 0x40  # skip-if-there / reached / zoom tol
 STALL_POLLS = 3                          # no-progress polls before declaring a stall
+FOCUS_MIN, FOCUS_MAX = 0x0000, 0x16B4    # manual-focus travel (measured; higher clamps)
 # tilt/pan 1% = 12/21 units, so the skip tol must be small or small steps vanish.
 
 def sopen(dev=DEV):
@@ -199,3 +200,27 @@ def zoom_pct(u): return round((u - WIDE) / (TELE - WIDE) * 100)
 def pan_u(p):    return round(p/100 * (PAN_MAX if p >= 0 else -PAN_MIN))
 def tilt_u(p):   return round(p/100 * (TILT_MAX if p >= 0 else -TILT_MIN))
 def zoom_u(p):   return int(WIDE + (TELE - WIDE) * p / 100)
+def focus_pct(u): return round((u - FOCUS_MIN) / (FOCUS_MAX - FOCUS_MIN) * 100)
+def focus_u(p):   return int(FOCUS_MIN + (FOCUS_MAX - FOCUS_MIN) * p / 100)
+
+# --- manual focus (VISCA Focus Auto/Manual 04 38, Focus Direct 04 48) ---------
+# The unit's autofocus hunts / drifts (esp. with a close-up lens), so manual
+# focus is the way to a stable, locked focus point. Range measured 0x0000..0x16B4.
+def get_focus(fd, tries=3):
+    for _ in range(tries):
+        termios.tcflush(fd, termios.TCIFLUSH); os.write(fd, bytes.fromhex("81090448FF"))
+        for f in _frames(fd, 0.8):
+            if len(f) == 7 and f[0] == 0x90 and (f[1] >> 4) == 0x5:
+                return (f[2]&0xF)<<12 | (f[3]&0xF)<<8 | (f[4]&0xF)<<4 | (f[5]&0xF)
+        time.sleep(0.15)
+    return None
+
+def focus_auto(fd):                       # restore autofocus
+    os.write(fd, bytes.fromhex("8101043802FF")); _frames(fd, 0.5)
+
+def set_focus(fd, pos):                   # lock manual focus at absolute position
+    pos = max(FOCUS_MIN, min(FOCUS_MAX, pos))
+    os.write(fd, bytes.fromhex("8101043803FF")); _frames(fd, 0.4)   # Focus Manual
+    n = _nib(pos)
+    os.write(fd, bytes([0x81,0x01,0x04,0x48] + n + [0xFF])); _frames(fd, 0.5)
+    return pos

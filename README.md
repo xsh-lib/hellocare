@@ -117,9 +117,15 @@ Function-type utils (sourced, so they work via `xsh <lib>/<util>` without needin
 (no pyserial / no venv), shared by the utils and by the bare PATH commands.
 
 ```
-xsh hellocare/ptz/zoom [0-100 | 0xNNNN | wide | tele]
-xsh hellocare/ptz/move [P [T [Z]]] | [pan P] [tilt T] [zoom Z] | center | reset
+xsh hellocare/ptz/zoom  [0-100 | 0xNNNN | wide | tele]
+xsh hellocare/ptz/focus [0-100 | 0xNNNN | auto]
+xsh hellocare/ptz/move  [P [T [Z]]] | [pan P] [tilt T] [zoom Z] | center | reset
 ```
+
+`focus` locks a **manual** focus position (VISCA Focus Manual + Focus Direct,
+travel 0x0000..0x16B4) — the unit's autofocus hunts/drifts, badly with a close-up
+lens, so a locked manual focus gives a stable point for a fixed working distance.
+`focus auto` restores autofocus.
 
 `reset` runs the camera's own calibration (VISCA `06 05`) back to (0,0) without
 grinding — the right recovery after the gimbal has been hand-moved or confused
@@ -149,6 +155,8 @@ ln -sfn ~/.xsh/lib/hellocare/libexec/ptz  ~/.local/bin/ptz
 
 ```
 zoom 60                      # optical zoom to 60%
+focus 55                     # lock manual focus at 55%
+focus auto                   # back to autofocus
 ptz pan 40 tilt -15 zoom 30  # aim + zoom
 ptz 50 -40 30                # same, positional
 ptz center                   # pan/tilt to 0
